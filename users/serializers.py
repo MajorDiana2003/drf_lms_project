@@ -1,11 +1,25 @@
 from rest_framework import serializers
-from users.models import User
+from users.models import User, Payment
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):
+    payments_history = PaymentSerializer(
+        source="payments", many=True, read_only=True
+    )
+
     class Meta:
         model = User
-        # Поля, которые можно просматривать и редактировать
-        fields = ('id', 'email', 'phone', 'city', 'avatar', 'password')
-        # Скрываем пароль при выводе информации из соображений безопасности
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = (
+            "id",
+            "email",
+            "phone",
+            "city",
+            "avatar",
+            "payments_history",
+        )
