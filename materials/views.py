@@ -7,6 +7,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from materials.paginators import MaterialsPagination
+from django.utils import timezone
+from datetime import timedelta
+from materials.tasks import send_course_update_email
 
 
 # Контроллер для Курсов
@@ -29,6 +32,22 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        # Получаем текущее состояние курса до сохранения новых данных
+        course = self.get_object()
+
+        # Запоминаем время прошлого обновления
+        old_updated_at = course.updated_at
+
+        # Сохраняем новые измененные данные курса
+        updated_course = serializer.save()
+
+        # Дополнительное задание: Проверяем, прошло ли 4 часа с момента прошлого обновления
+        # Если это самое первое обновление (old_updated_at равен None) или прошло более 4 часов
+        if old_updated_at is None or timezone.now() - old_updated_at > timedelta(hours=4):
+            # Вызываем асинхронную задачу Celery с помощью метода .delay()
+            send_course_update_email.delay(updated_course.id)
 
     # Разделение прав по действиям (actions)
     def get_permissions(self):

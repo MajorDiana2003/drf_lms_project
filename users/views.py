@@ -13,6 +13,7 @@ from users.serializers import (
 )
 from users.services import create_stripe_product, create_stripe_price, create_stripe_session, retrieve_stripe_session
 
+
 class UserProfileAPIView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
 
