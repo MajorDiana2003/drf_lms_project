@@ -1,0 +1,65 @@
+name: Django CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # 1. Этап тестирования и линтинга
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Этап Линта (проверка стиля кода)
+      - name: Lint with flake8
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # Этап Тестов (запуск тестов Django)
+      - name: Run Django Tests
+        env:
+          SECRET_KEY: "temporary_secret_key_for_testing"
+          POSTGRES_DB: "mock_db"
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "password"
+          POSTGRES_HOST: "localhost"
+          POSTGRES_PORT: "5432"
+        run: |
+          python manage.py test
+
+  # 2. Этап деплоя на удаленный сервер
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test-and-lint
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/')
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+
+      - name: Deploy to Remote Server via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.SERVER_USERNAME }}/app
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
+            docker compose exec web python manage.py migrate
