@@ -23,3 +23,22 @@ class UserSerializer(serializers.ModelSerializer):
             "avatar",
             "payments_history",
         )
+
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'phone', 'city']
+
+    def create(self, validated_data):
+
+        return User.objects.create_user(**validated_data)
+
+
+class UserPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        # Показываем только общую открытую информацию
+        fields = ("id", "email", "phone", "city", "avatar")

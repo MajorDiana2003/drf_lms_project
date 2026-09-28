@@ -1,14 +1,20 @@
 [
   {
-    "model": "users.payment",
+    "model": "users.user",
     "pk": 1,
     "fields": {
-      "user": 1,
-      "payment_date": "2026-09-27T12:00:00Z",
-      "paid_course": 1,
-      "paid_lesson": null,
-      "amount": "5000.00",
-      "payment_method": "transfer"
+      "email": "test@example.com",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "materials.course",
+    "pk": 1,
+    "fields": {
+      "title": "Основы Django",
+      "description": "Изучаем сериализаторы и вьюсеты"
     }
   },
   {
@@ -16,11 +22,13 @@
     "pk": 2,
     "fields": {
       "user": 1,
-      "payment_date": "2026-09-27T15:30:00Z",
-      "paid_course": null,
+      "payment_date": "2026-09-27T15:20:00Z",
+      "paid_course": 1,
       "paid_lesson": null,
       "amount": "1500.00",
       "payment_method": "cash"
     }
   }
 ]
+
+
