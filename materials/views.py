@@ -16,8 +16,15 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     # Динамически фильтруем список курсов для обычных пользователей
     def get_queryset(self):
+        # Если пользователь не авторизован
+        if not self.request.user.is_authenticated:
+            return Course.objects.none()
+
+        # Если это модератор
         if self.request.user.groups.filter(name="модераторы").exists():
             return Course.objects.all()
+
+        # Для обычных владельцев
         return Course.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
@@ -61,6 +68,10 @@ class LessonListAPIView(generics.ListAPIView):
 
     # Дополнительно: чтобы обычные юзеры не видели чужие уроки в списке
     def get_queryset(self):
+        # Безопасное отсечение неавторизованных запросов от Swagger
+        if not self.request.user.is_authenticated:
+            return Lesson.objects.none()
+
         if self.request.user.groups.filter(name="модераторы").exists():
             return Lesson.objects.all()
         return Lesson.objects.filter(owner=self.request.user)
