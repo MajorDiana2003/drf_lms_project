@@ -1,5 +1,6 @@
 # DRF LMS Project
 Веб-приложение для управления обучением (LMS) с использованием Django REST Framework.
+Проект успешно контейнеризирован с использованием Docker и Docker Compose.
 
 ## Новые фичи
 * **Фоновые задачи (Celery):** Настроена интеграция с Celery для вынесения тяжелых операций в асинхронный фоновый режим.
@@ -76,20 +77,23 @@ pip install -r requirements.txt
 ```bash
 python manage.py migrate
 ```
-
-6. **Загрузите демонстрационные данные из фикстур:**
+6. **Запустите сборку и оркестрацию контейнеров одной командой:**
+   ```bash
+   docker compose up --build
+   ````
+7. **Загрузите демонстрационные данные из фикстур:**
 ```bash
 python manage.py loaddata users/fixtures/groups_data.json
 python manage.py loaddata users/fixtures/payments_data.json
 ```
 
-7. **Создайте суперпользователя (администратора):**
+8. **Создайте суперпользователя (администратора):**
 ```bash
 python manage.py createsuperuser
 ```
 *Система попросит ввести Email и пароль (авторизация по умолчанию настроена через Email).*
 
-8. **Запустите сервер разработки:**
+9. **Запустите сервер разработки:**
 ```bash
 python manage.py runserver
 ```
