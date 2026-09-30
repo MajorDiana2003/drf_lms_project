@@ -1,28 +1,27 @@
+
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from materials.apps import MaterialsConfig
-from materials.views import (
+from lms.apps import LmsConfig
+from lms.views import (
     CourseViewSet,
     LessonCreateAPIView,
     LessonListAPIView,
     LessonRetrieveAPIView,
     LessonUpdateAPIView,
-    LessonDestroyAPIView,
-    SubscriptionAPIView
+    LessonDestroyAPIView
 )
 
-app_name = MaterialsConfig.name
+app_name = LmsConfig.name
 
-# Настройка роутера для ViewSet курсов
+# Настраиваем роутер для ViewSet курсов
 router = DefaultRouter()
 router.register(r'courses', CourseViewSet, basename='courses')
 
 urlpatterns = [
-    # Эндпоинты для уроков
+    # Маршруты для уроков (Generics)
     path('lessons/create/', LessonCreateAPIView.as_view(), name='lesson-create'),
     path('lessons/', LessonListAPIView.as_view(), name='lesson-list'),
     path('lessons/<int:pk>/', LessonRetrieveAPIView.as_view(), name='lesson-get'),
     path('lessons/update/<int:pk>/', LessonUpdateAPIView.as_view(), name='lesson-update'),
     path('lessons/delete/<int:pk>/', LessonDestroyAPIView.as_view(), name='lesson-delete'),
-    path('course/subscribe/', SubscriptionAPIView.as_view(), name='course-subscribe'),
-] + router.urls
+] + router.urls  # Прибавляем маршруты от роутера курсов

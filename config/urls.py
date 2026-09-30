@@ -1,31 +1,13 @@
-from django.conf import settings
-from django.conf.urls.static import static
+
 from django.contrib import admin
-from django.urls import include, path
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-
-from config.views import index_view
-
-# Конфигурация автодокументации API
-schema_view = get_schema_view(
-    openapi.Info(
-        title="LMS API Documentation",
-        default_version='v1',
-        description="Документация для API образовательной платформы LMS",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
+from django.urls import path, include
+from lms.views import api_view, api_root
 
 urlpatterns = [
-                  path('admin/', admin.site.urls),
-                  path('', index_view, name='index'),
-                  path('materials/', include('materials.urls', namespace='materials')),
-                  path('users/', include('users.urls', namespace='users')),
+    path('admin/', admin.site.urls),
+    path('', api_root, name='api-root'),
 
-                  # Новые эндпоинты для документации
-                  path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-                  path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Подключаем API
+    path('api/', include('lms.urls', namespace='lms')),
+    path('api/users/', include('users.urls', namespace='users')),
+]
